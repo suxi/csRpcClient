@@ -1,4 +1,8 @@
-interface IRpcClient
+using System;
+namespace csRpcClient
 {
-    T Call<T>(object[] args);
+    public interface IRpcClient
+    {
+        string Call(string method, params Object[] args);
+    }
 }
