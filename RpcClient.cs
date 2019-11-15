@@ -20,9 +20,11 @@ namespace csRpcClient
     {
         public string method{get;set;}
         public object[] @params{get;set;}
+        public string id{get;set;}
     }
     internal partial class RpcClient : IRpcClient, IDisposable
     {
+        private string DUMMY = "1";
         private readonly Type ProviderType = typeof(RpcClient);
         private readonly string QueueName = "inner.test.2";
         private readonly IConnection Conn;
@@ -103,7 +105,7 @@ namespace csRpcClient
             };
         }
 
-        public string Call(string method, object[] args)
+        public string Call(string queue, string method, int timeout = 5000, params object[] args)
         {
             var replyQueueNmae = callChannel.QueueDeclare().QueueName;
             var props = callChannel.CreateBasicProperties();
@@ -122,18 +124,27 @@ namespace csRpcClient
             var message = new Message
             {
                 method = method,
-                @params = args
+                @params = args,
+                id = DUMMY
             };
             var messageBytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
             callChannel.BasicPublish(
                 exchange: "",
-                routingKey: QueueName,
+                routingKey: queue,
                 basicProperties: props,
                 body: messageBytes
             );
             callChannel.BasicConsume(consumer: consumer, queue: replyQueueNmae, autoAck: true);
-            var responseBytes = respQueue.Take();
-            return Encoding.UTF8.GetString(responseBytes);
+            var ret = respQueue.TryTake(out byte[] responseBytes, timeout);
+            if (ret)
+            {
+                return Encoding.UTF8.GetString(responseBytes);
+            }
+            else
+            {
+                return null;
+            }
+            
         }
 
         public void Dispose()

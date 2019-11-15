@@ -23,7 +23,7 @@ namespace csRpcClient.Controllers
         [HttpGet]
         public string Get()
         {
-            return _client.Call(method: "hello", "world", "csharp");
+            return _client.Call(queue: "inner.test.1", method: "hello",timeout:3000, "world", "csharp");
         }
     }
 }

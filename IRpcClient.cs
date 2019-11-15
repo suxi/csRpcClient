@@ -3,6 +3,6 @@ namespace csRpcClient
 {
     public interface IRpcClient
     {
-        string Call(string method, params Object[] args);
+        string Call(string queue, string method,int timeout, params Object[] args);
     }
 }
