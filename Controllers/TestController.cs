@@ -21,9 +21,9 @@ namespace csRpcClient.Controllers
         }
 
         [HttpGet]
-        public string Get()
+        public async Task<string> Get()
         {
-            return _client.Call(queue: "inner.test.1", method: "hello",timeout:3000, "world", "csharp");
+            return await _client.CallAsync(queue: "inner.test.1", method: "hello",timeout:3000, "world", "csharp");
         }
     }
 }
